@@ -1,0 +1,13 @@
+E:\電腦研究\程式設計\2017年總開發\2017.11月程式開發\ASUS Firmware Downloader\ASUS Firmware Downloader\bin\Release\ASUS Firmware Downloader.exe.config
+E:\電腦研究\程式設計\2017年總開發\2017.11月程式開發\ASUS Firmware Downloader\ASUS Firmware Downloader\bin\Release\ASUS Firmware Downloader.exe
+E:\電腦研究\程式設計\2017年總開發\2017.11月程式開發\ASUS Firmware Downloader\ASUS Firmware Downloader\bin\Release\ASUS Firmware Downloader.pdb
+E:\電腦研究\程式設計\2017年總開發\2017.11月程式開發\ASUS Firmware Downloader\ASUS Firmware Downloader\bin\Release\Yuan.dll
+E:\電腦研究\程式設計\2017年總開發\2017.11月程式開發\ASUS Firmware Downloader\ASUS Firmware Downloader\bin\Release\Yuan.pdb
+E:\電腦研究\程式設計\2017年總開發\2017.11月程式開發\ASUS Firmware Downloader\ASUS Firmware Downloader\obj\Release\ASUS_Firmware_Downloader.Download.resources
+E:\電腦研究\程式設計\2017年總開發\2017.11月程式開發\ASUS Firmware Downloader\ASUS Firmware Downloader\obj\Release\ASUS_Firmware_Downloader.Downloader.resources
+E:\電腦研究\程式設計\2017年總開發\2017.11月程式開發\ASUS Firmware Downloader\ASUS Firmware Downloader\obj\Release\ASUS_Firmware_Downloader.Form1.resources
+E:\電腦研究\程式設計\2017年總開發\2017.11月程式開發\ASUS Firmware Downloader\ASUS Firmware Downloader\obj\Release\ASUS_Firmware_Downloader.Properties.Resources.resources
+E:\電腦研究\程式設計\2017年總開發\2017.11月程式開發\ASUS Firmware Downloader\ASUS Firmware Downloader\obj\Release\ASUS Firmware Downloader.csproj.GenerateResource.Cache
+E:\電腦研究\程式設計\2017年總開發\2017.11月程式開發\ASUS Firmware Downloader\ASUS Firmware Downloader\obj\Release\ASUS Firmware Downloader.csproj.CoreCompileInputs.cache
+E:\電腦研究\程式設計\2017年總開發\2017.11月程式開發\ASUS Firmware Downloader\ASUS Firmware Downloader\obj\Release\ASUS Firmware Downloader.exe
+E:\電腦研究\程式設計\2017年總開發\2017.11月程式開發\ASUS Firmware Downloader\ASUS Firmware Downloader\obj\Release\ASUS Firmware Downloader.pdb
