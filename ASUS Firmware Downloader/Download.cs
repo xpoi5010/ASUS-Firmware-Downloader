@@ -1,14 +1,26 @@
-﻿using System;
+﻿/*
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>
+ */
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Data;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using Yuan.Text.Format.JSON;
-
+using Newtonsoft.Json;
+using System.Diagnostics;
 namespace ASUS_Firmware_Downloader
 {
     public partial class Download : UserControl
@@ -16,6 +28,7 @@ namespace ASUS_Firmware_Downloader
         public Download()
         {
             InitializeComponent();
+            DownloadListControl = new DownloadList();
         }
         private string JSON_source = "";
         private List<string[]> Firmwares = new List<string[]>();
@@ -32,60 +45,35 @@ namespace ASUS_Firmware_Downloader
                 process();
             }
         }
+        public string ProductUrl { get; set; }
         private void process()
         {
             listBox1.Items.Clear();
             Firmwares.Clear();
             if (JSON_source == "") return;
-            
-            
-                string temp = JSON_source.Replace("supportpdpage(", "");
-                JSONItem ji = new JSONItem(temp.Remove(temp.Length - 1));
-                if (ji.ItemType == JSONItemType.Object)
+            string temp = JSON_source.Replace("supportpdpage(", "");
+            string JSONSource = temp.Remove(temp.Length - 1);
+            DriverResults driverResults = JsonConvert.DeserializeObject<DriverResults>(JSONSource);
+            foreach(DriverObj obj in driverResults.Result.Obj)
+            {
+                if (obj.Name == "韌體")
                 {
-                    JSONObject jo = (JSONObject)ji.Item;
-                    JSONItem result = jo["Result"].Value;
-                    if (result.ItemType == JSONItemType.Object)
+                    DriverFile[] driverFiles = obj.Files;
+                    foreach(DriverFile df in driverFiles)
                     {
-                        JSONObject joo = (JSONObject)result.Item;
-                        JSONItem Obj = joo["Obj"].Value;
-                        if (Obj.ItemType == JSONItemType.Array)
-                        {
-                            JSONArray ja = (JSONArray)Obj.Item;
-                            foreach (JSONItem sub in ja)
-                            {
-                                if (sub.ItemType == JSONItemType.Object)
-                                {
-                                    JSONObject objsubobj = (JSONObject)sub.Item;
-                                    string name1 = (string)objsubobj["Name"].Value.Item;
-                                    if (name1 == "韌體")
-                                    {
-                                        JSONArray Files = (JSONArray)objsubobj["Files"].Value.Item;
-
-                                        foreach (JSONItem file in Files)
-                                        {
-                                            if (file.ItemType == JSONItemType.Object)
-                                            {
-                                                JSONObject fileobj = (JSONObject)file.Item;
-                                                string Version = (string)fileobj["Version"].Value.Item;
-                                                string Title = (string)fileobj["Title"].Value.Item;
-                                                string Description = (string)fileobj["Description"].Value.Item;
-                                                string FileSize = (string)fileobj["FileSize"].Value.Item;
-                                                string ReleaseDate = (string)fileobj["ReleaseDate"].Value.Item;
-                                                JSONObject DownloadUrl = (JSONObject)fileobj["DownloadUrl"].Value.Item;
-                                                string globaluri = (string)DownloadUrl["Global"].Value.Item;
-                                                Firmwares.Add(new string[] { Version, Title, Description, FileSize, ReleaseDate, globaluri });
-                                                listBox1.Items.Add(Version);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                        string Version = df.Version;
+                        string Title = df.Title;
+                        string Description = df.Description;
+                        string FileSize = df.FileSize;
+                        string ReleaseDate = df.ReleaseDate;
+                        DriverDownloadUrl DownloadUrl = df.DownloadUrl;
+                        string globaluri = DownloadUrl.Global;
+                        Firmwares.Add(new string[] { Version, Title, Description, FileSize, ReleaseDate, globaluri });
+                        listBox1.Items.Add(Version);
                     }
-                
-               
+                }
             }
+                
         }
         string temp_url = "";
         string firmware = "";
@@ -99,16 +87,17 @@ namespace ASUS_Firmware_Downloader
                 firmware = Firmwares[index][0];
                 //title.Text = $@"{Firmwares[index][1]}";
                 description.Text = $@"{Firmwares[index][2].Replace("<br/>","\r\n")}";
-                filesize.Text = $@"檔案大小:{Firmwares[index][3]}";
+                filesize.Text = $@"檔案大小:{Firmwares[index][3].Replace(" GBytes"," GiB")}";
                 size = Firmwares[index][3];
                 date.Text = $@"更新日期:{Firmwares[index][4]}";
                 temp_url = Firmwares[index][5];
             }
         }
-
+        public DownloadList DownloadListControl { get; set; }
         private void button1_Click(object sender, EventArgs e)
         {
-            if(MessageBox.Show($"您確定要下載此韌體嗎?這將會占用您電腦{size}的空間。", "詢問", MessageBoxButtons.YesNo, MessageBoxIcon.Question)== DialogResult.Yes)
+            if (temp_url == "") return;
+            if(MessageBox.Show($"您確定要下載此韌體嗎?這將會占用您電腦{size.Replace("GBytes","GiB")}的空間。", "詢問", MessageBoxButtons.YesNo, MessageBoxIcon.Question)== DialogResult.Yes)
             {
                 SaveFileDialog sfd = new SaveFileDialog();
                 sfd.Title = "請選擇您要存放韌體的位置。";
@@ -117,16 +106,14 @@ namespace ASUS_Firmware_Downloader
                 sfd.FileName = StringArray[StringArray.Count() - 1];
                 if (sfd.ShowDialog()== DialogResult.OK)
                 {
-                    Downloader downloader = new Downloader(firmware, size, temp_url, sfd.FileName);
-                    downloader.StartDownload();
-                    if(downloader.ShowDialog()== DialogResult.OK)
+                    if (DownloadListControl.Count >= 2)
                     {
-                        MessageBox.Show("下載完成。", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show("基於WebClient的限制，一個ip最多僅能同時下載兩個韌體。", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
                     }
-                    else
-                    {
-                        
-                    }
+
+                    DownloadListControl.AddDownload(firmware, size, temp_url, sfd.FileName);
+                    DownloadListControl.Show();
                 }
             }
         }
@@ -134,6 +121,23 @@ namespace ASUS_Firmware_Downloader
         private void panel1_Paint(object sender, PaintEventArgs e)
         {
 
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            DownloadListControl.Show();
+        }
+
+        private void Download_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            Process process = new Process() { };
+            process.StartInfo.FileName = ProductUrl;
+            process.Start();
         }
     }
 }
